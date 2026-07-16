@@ -209,9 +209,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			break;
 		}
 
-		// 描画開始
-		dxCommon->PreDraw();
-
 		// TransitionBarrierを SRV ⇒ RTV に設定する
 		D3D12_RESOURCE_BARRIER barrier{};
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;                       // TranslationBarrierの設定
@@ -250,6 +247,9 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// 指定した深度で画面全体をクリアする
 		commandList->ClearDepthStencilView(dsvHandleCPU, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
+		// 描画開始
+		dxCommon->PreDraw();
+
 		// コマンドを積む
 		commandList->SetGraphicsRootSignature(rs.Get());     // RootSignatureの設定
 		commandList->SetPipelineState(pipelineState.Get());  // PSOの設定する
@@ -260,12 +260,15 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		// 使用するディスクリプタヒープの設定
-		commandList->SetDescriptorHeaps(srvDescriptorHeap->GetDesc().NumDescriptors, &srvDescriptorHeap);
+		commandList->SetDescriptorHeaps(1, &srvDescriptorHeap);
 
 		// SRVのDescripterTableの先頭を設定
 		commandList->SetGraphicsRootDescriptorTable(0, srvHandleGPU);
 
 		commandList->DrawIndexedInstanced(_countof(indices), 1, 0, 0, 0);
+
+		// 描画終了
+		dxCommon->PostDraw();
 
 		// TransitionBarrierを元に戻し、PixelShaderが扱えるようにする
 		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;                      // TranslationBarrierの設定
@@ -274,9 +277,6 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;        // 遷移前
 		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE; // 遷移後
 		commandList->ResourceBarrier(1, &barrier);                                  // バリアを張る
-
-		// 描画終了
-		dxCommon->PostDraw();
 	}
 
 	// 解放
