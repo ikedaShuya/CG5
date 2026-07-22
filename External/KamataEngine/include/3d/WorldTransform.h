@@ -38,6 +38,14 @@ public:
 	/// </summary>
 	void Initialize();
 	/// <summary>
+	/// 定数バッファ生成
+	/// </summary>
+	void CreateConstBuffer();
+	/// <summary>
+	/// マッピングする
+	/// </summary>
+	void Map();
+	/// <summary>
 	/// 行列を転送する
 	/// </summary>
 	void TransferMatrix();
@@ -46,7 +54,7 @@ public:
 	/// </summary>
 	/// <returns>定数バッファ</returns>
 	const Microsoft::WRL::ComPtr<ID3D12Resource>& GetConstBuffer() const { return constBuffer_; }
-
+	void UpdateMatrix();
 private:
 	// 定数バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffer_;
@@ -55,15 +63,6 @@ private:
 	// コピー禁止
 	WorldTransform(const WorldTransform&) = delete;
 	WorldTransform& operator=(const WorldTransform&) = delete;
-
-	/// <summary>
-	/// 定数バッファ生成
-	/// </summary>
-	void CreateConstBuffer();
-	/// <summary>
-	/// マッピングする
-	/// </summary>
-	void Map();
 };
 
 static_assert(!std::is_copy_assignable_v<WorldTransform>);
