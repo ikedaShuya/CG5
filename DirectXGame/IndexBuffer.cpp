@@ -7,6 +7,9 @@
 using namespace KamataEngine;
 
 void IndexBuffer::Create(const UINT size, const UINT stride) {
+
+	HRESULT hr;
+
 	// strideの値によって、1つのインデックスのフォーマットを決める
 	assert(stride == 2 || stride == 4); // 2byte or 4byte のみ受け付ける
 	DXGI_FORMAT format = (stride == 2) ? DXGI_FORMAT_R16_UINT : DXGI_FORMAT_R32_UINT;
@@ -32,8 +35,7 @@ void IndexBuffer::Create(const UINT size, const UINT stride) {
 
 	// 実際にインデックスリソースを生成する
 	ID3D12Resource* indexResource = nullptr;
-	HRESULT hr =
-	    dxCommon->GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &indexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&indexResource));
+	hr = dxCommon->GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &indexResourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&indexResource));
 	assert(SUCCEEDED(hr)); // うまくいかなかったときは起動できない
 
 	// 生成したインデックスリソースをとっておく
